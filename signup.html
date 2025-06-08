@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign Up - Sales Chatbot</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    input:focus {
+      box-shadow: 0 0 0 3px rgb(99 102 241 / 0.5);
+      outline: none;
+    }
+    input:-webkit-autofill {
+      -webkit-box-shadow: 0 0 0 1000px #374151 inset !important;
+      -webkit-text-fill-color: #d1d5db !important;
+    }
+  </style>
+</head>
+<body class="bg-gray-900 min-h-screen flex items-center justify-center p-4">
+  <div class="bg-gray-800 rounded-lg shadow-lg max-w-md w-full p-8">
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-100">Create Your Account</h2>
+
+    <form method="POST" class="space-y-6" onsubmit="return validateForm()">
+      <div id="error-message" class="text-red-400 text-sm text-center"></div>
+      <input
+        type="text"
+        name="username"
+        placeholder="Username"
+        required
+        class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-md text-gray-100 placeholder-gray-400 transition focus:ring-2 focus:ring-indigo-500"
+      />
+      <!-- Password -->
+<div class="relative">
+  <input
+    type="password"
+    name="password"
+    id="password"
+    placeholder="Password"
+    required
+    class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-md text-gray-100 placeholder-gray-400 transition focus:ring-2 focus:ring-indigo-500"
+  />
+  <button type="button" id="togglePassword" class="absolute right-3 top-3 text-gray-400">
+    <svg id="eyeIcon1" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+    </svg>
+    <svg id="eyeOffIcon1" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.956 9.956 0 012.307-3.592m3.246-2.156A9.966 9.966 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.958 9.958 0 01-4.293 5.303M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M3 3l18 18"/>
+    </svg>
+  </button>
+</div>
+
+<!-- Confirm Password -->
+<div class="relative">
+  <input
+    type="password"
+    name="confirm_password"
+    id="confirm_password"
+    placeholder="Confirm Password"
+    required
+    class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-md text-gray-100 placeholder-gray-400 transition focus:ring-2 focus:ring-indigo-500"
+  />
+  <button type="button" id="toggleConfirm" class="absolute right-3 top-3 text-gray-400">
+    <svg id="eyeIcon2" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+    </svg>
+    <svg id="eyeOffIcon2" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.956 9.956 0 012.307-3.592m3.246-2.156A9.966 9.966 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.958 9.958 0 01-4.293 5.303M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M3 3l18 18"/>
+    </svg>
+  </button>
+</div>
+
+      <button
+        type="submit"
+        class="w-full bg-indigo-600 text-white py-3 rounded-md font-semibold hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+      >
+        Sign Up
+      </button>
+    </form>
+
+    <p class="mt-4 text-sm text-center text-gray-400">
+      Already have an account? <a href="/login" class="text-indigo-400 hover:underline">Login</a>
+    </p>
+  </div>
+
+  <script>
+    function validateForm() {
+      const password = document.getElementById("password").value;
+      const confirm = document.getElementById("confirm_password").value;
+      const errorDiv = document.getElementById("error-message");
+
+      const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/;
+
+      if (!regex.test(password)) {
+        errorDiv.innerText = "Password must have at least 8 characters, uppercase, lowercase, number & special symbol.";
+        return false;
+      }
+
+      if (password !== confirm) {
+        errorDiv.innerText = "Passwords do not match.";
+        return false;
+      }
+
+      errorDiv.innerText = "";
+      return true;
+    }
+
+     function togglePasswordVisibility(inputId, eyeId, eyeOffId) {
+    const input = document.getElementById(inputId);
+    const eye = document.getElementById(eyeId);
+    const eyeOff = document.getElementById(eyeOffId);
+
+    const isPassword = input.type === "password";
+    input.type = isPassword ? "text" : "password";
+    eye.classList.toggle("hidden", !isPassword);
+    eyeOff.classList.toggle("hidden", isPassword);
+  }
+
+  document.getElementById("togglePassword").addEventListener("click", () =>
+    togglePasswordVisibility("password", "eyeIcon1", "eyeOffIcon1")
+  );
+  document.getElementById("toggleConfirm").addEventListener("click", () =>
+    togglePasswordVisibility("confirm_password", "eyeIcon2", "eyeOffIcon2")
+  );
+  </script>
+</body>
+</html>

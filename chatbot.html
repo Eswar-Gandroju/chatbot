@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ShopEase Chat Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    /* Your original styles (scrollbars, bubbles, sidebar transitions, modal, etc.) */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-thumb { background-color: #5a67d8; border-radius: 4px;}
+    ::-webkit-scrollbar-track { background: transparent;}
+
+    .bubble-left {  position: relative;
+      background-color: #2d3748;
+      border-radius: 1rem 1rem 1rem 0;
+      color: #cbd5e1;
+      padding: 0.75rem 1rem;
+      max-width: 100%;
+      word-wrap: break-word;
+       }
+    .bubble-left::after {  content: "";
+      position: absolute;
+      left: -8px;
+      top: 12px;
+      border-top: 8px solid transparent;
+      border-right: 8px solid #2d3748;
+      border-bottom: 8px solid transparent;
+     }
+    .bubble-right {   position: relative;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 1rem 1rem 0 1rem;
+      color: white;
+      padding: 0.75rem 1rem;
+      max-width: 100%;
+      word-wrap: break-word; 
+    }
+    .bubble-right::after {   content: "";
+      position: absolute;
+      right: -8px;
+      top: 12px;
+      border-top: 8px solid transparent;
+      border-left: 8px solid #764ba2;
+      border-bottom: 8px solid transparent; }
+
+        @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .animate-fadeInUp {
+      animation: fadeInUp 0.3s ease forwards;
+    }
+
+.chat-message-wrapper {
+      display: flex;
+      flex-direction: column;
+      max-width: 65%;
+      margin-bottom: 0.5rem;
+    }
+    .chat-message-wrapper.self-end {
+      align-self: flex-end;
+      align-items: flex-end;
+      margin:auto;
+    }
+    .chat-message-wrapper.self-start {
+      align-self: flex-start;
+      align-items: flex-start;
+    }
+    
+
+    @media (max-width:768px){   #sidebar {
+        position: fixed;
+        top: 56px; /* navbar height */
+        left: 0;
+        height: calc(100vh - 56px);
+        z-index: 50;
+        background-color: #1a202c; /* bg-gray-900 */
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+        width: 280px !important;
+        padding: 1rem !important;
+        overflow-y: auto;
+      }
+      #sidebar.open {
+        transform: translateX(0); 
+      }
+      #sidebar.closed {
+        transform: translateX(-100%);
+        display: none;
+      }
+      #main-chat {
+       margin-left: 18rem; /* Match sidebar width */
+    width: calc(100% - 18rem);
+      }
+      #sidebar-toggle {
+        display: inline-flex;
+      } }
+
+      #profile-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 0.5rem;
+  background-color: #2d3748; /* Slightly lighter gray */
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+  width: 150px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+  z-index: 10000;
+}
+
+#profile-dropdown.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+#profile-dropdown button {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0.75rem 1rem;
+  color: #cbd5e1;
+  text-align: left;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+#profile-dropdown button:hover {
+  background-color: #4c51bf; /* Indigo-ish hover */
+  color: white;
+}
+
+
+    /* Listening mic style */
+    .listening { background-color: #dc2626 !important; color: white !important; }
+
+    /* Product grid in chat bubbles */
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(100px,1fr)); gap: 8px; margin-top:0.5rem;}
+    .product-grid img { width:100%; height:100px; object-fit:cover; border-radius:0.5rem; cursor:pointer; transition:transform 0.2s;}
+    .product-grid img:hover { transform:scale(1.05); box-shadow:0 4px 10px rgba(0,0,0,0.3); }
+
+    /* Modal overlay/style */
+    #modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); display:none; justify-content:center;
+      align-items:center; z-index:9999; padding:1rem; }
+    #modal-overlay.active { display:flex; }
+    #modal-content { background:#1a202c; color:#cbd5e1; border-radius:0.75rem; max-width:600px;
+      width:100%; padding:1.5rem; box-shadow:0 10px 25px rgba(0,0,0,0.6); position:relative; }
+    #modal-content img { width:100%; max-height:300px; object-fit:contain; border-radius:0.5rem; margin-bottom:1rem;}
+    #modal-close-btn { position:absolute; top:0.5rem; right:0.75rem; background:none; border:none;
+      font-size:1.5rem; color:#a0aec0; cursor:pointer; }
+    #modal-close-btn:hover { color:#fff; }
+
+    /* Sidebar transition */
+    #sidebar { transition:transform 0.3s ease, width 0.3s ease; }
+    #sidebar.closed { transform:translateX(-100%); width:0!important; padding:0!important; overflow:hidden; }
+    #main-chat { transition:margin-left 0.3s ease, width 0.3s ease-in-out; }
+    #main-chat.expanded { margin-left:0!important; width:100%!important; }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 text-slate-300 flex flex-col h-screen overflow-hidden">
+  <!-- Navbar -->
+  <nav class="flex items-center justify-between bg-gray-900 px-6 py-3 shadow-lg">
+  <div class="flex items-center gap-4">
+    <button id="sidebar-toggle" class="text-indigo-400 hover:text-indigo-200">
+      <i class="fa fa-bars fa-lg"></i>
+    </button>
+    <span class="text-2xl font-bold tracking-wide select-none text-white">ShopEase Chat</span>
+  </div>
+
+  <div class="relative">
+    <button id="profile-btn" class="flex items-center gap-2">
+      <img src="https://i.pravatar.cc/32" class="w-8 h-8 rounded-full"/>
+      <span id="username-display"></span>
+      <i class="fa fa-caret-down text-indigo-400"></i>
+    </button>
+    <div id="profile-dropdown" class="absolute right-0 mt-2 bg-gray-800 rounded shadow-lg py-2">
+      <button id="logout-btn" class="block w-full px-4 py-2 hover:bg-gray-700">Logout</button>
+    </div>
+  </div>
+</nav>
+
+
+  <div class="flex flex-1 overflow-hidden relative">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="bg-gray-900 w-72 p-4 flex flex-col overflow-y-auto z-20 transition-all duration-300">
+      <div class="flex justify-between mb-4">
+        <h2 class="text-lg font-semibold">Chats</h2>
+        <button id="sidebar-close-btn" class="text-indigo-400 hover:text-indigo-200"><i class="fa fa-chevron-left fa-lg"></i></button>
+      </div>
+      <button id="new-chat-btn" class="w-full mb-4 py-2 bg-indigo-700 rounded hover:bg-indigo-600 flex justify-center gap-2">
+        <i class="fa fa-pen-to-square"></i> New Chat
+      </button>
+      <div class="relative mb-4">
+        <input id="search-chats" type="text" placeholder="Search chats..." class="w-full px-3 py-2 bg-gray-800 rounded focus:ring-2 focus:ring-indigo-400"/>
+        <i class="fa fa-magnifying-glass absolute right-3 top-2 text-gray-500"></i>
+      </div>
+      <div id="chat-history" class="flex flex-col gap-3 overflow-y-auto"></div>
+    </aside>
+
+    <!-- Chat Area -->
+    <main id="main-chat" class="flex flex-col bg-gray-800 p-4 flex-1 transition-all duration-300 rounded-lg shadow-inner">
+
+      <div id="chat-window" class="flex-grow overflow-y-auto p-4 bg-gray-900 rounded-lg space-y-4"></div>
+      <form id="chat-form" class="flex mt-4 gap-2">
+        <input id="chat-input" type="text" placeholder="Type your message here..." class="flex-grow rounded-l-lg px-4 py-3 bg-gray-700 text-white focus:ring-2 focus:ring-indigo-400"/>
+        <button type="submit" id="send-btn" class="bg-indigo-600 px-6 rounded-none flex items-center gap-2 hover:bg-indigo-500">
+          <i class="fa fa-paper-plane"></i> Send
+        </button>
+        <button type="button" id="voice-btn" class="bg-indigo-700 px-4 flex items-center hover:bg-indigo-600">
+          <i class="fa fa-microphone"></i>
+        </button>
+      </form>
+    </main>
+  </div>
+
+  <!-- Modal Popup -->
+  <!-- Modal -->
+<div id="modal-overlay" role="dialog" aria-modal="true">
+    <div id="modal-content">
+      <button id="modal-close-btn" aria-label="Close modal">&times;</button>
+      <h3 id="modal-title" class="text-xl font-semibold mb-2"></h3>
+      <img id="modal-image" alt="" class="w-full max-h-64 object-contain mb-4 rounded"/>
+      <p id="modal-description" class="mb-4"></p>
+      <p class="price text-indigo-500 font-bold" id="modal-price"></p>
+    </div>
+  </div>
+
+
+  <script>
+    // Elements & State Variables
+    const username = "{{ username }}";
+    document.getElementById('username-display').textContent = username;
+    const sidebar = document.getElementById('sidebar');
+    const mainChat = document.getElementById('main-chat');
+    const chatWindow = document.getElementById('chat-window');
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const chatHistoryDiv = document.getElementById('chat-history');
+    const searchInput = document.getElementById('search-chats');
+    const newChatBtn = document.getElementById('new-chat-btn');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebarClose = document.getElementById('sidebar-close-btn');
+    const voiceBtn = document.getElementById('voice-btn');
+
+    const profileBtn = document.getElementById('profile-btn');
+    const profileDropdown = document.getElementById('profile-dropdown');
+
+// Toggle dropdown visibility
+    profileBtn.addEventListener('click', () => {
+  profileDropdown.classList.toggle('show');
+});
+document.addEventListener('click', (e) => {
+  if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+    profileDropdown.classList.remove('show');
+  }
+});
+
+
+
+    // Modal elements
+   const modalOverlay = document.getElementById('modal-overlay');
+    const modalClose = document.getElementById('modal-close-btn');
+    const modalTitle = document.getElementById('modal-title');
+    const modalImage = document.getElementById('modal-image');
+    const modalDescription = document.getElementById('modal-description');
+    const modalPrice = document.getElementById('modal-price');
+
+    // Voice Recognition setup
+    let recognition, isListening = false;
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SR();
+      recognition.lang = 'en-US';
+      recognition.continuous = false;
+      recognition.onstart = () => { isListening = true; voiceBtn.classList.add('listening'); };
+      recognition.onend = () => { isListening = false; voiceBtn.classList.remove('listening'); };
+      recognition.onresult = e => { chatInput.value = e.results[0][0].transcript.trim(); chatInput.focus(); };
+    }
+
+    voiceBtn.onclick = () => {
+      if (!recognition) return alert("Voice not supported");
+      isListening ? recognition.stop() : recognition.start(); 
+    };
+
+    // Toggle sidebar on mobile
+   sidebarToggle.onclick = () => {
+  sidebar.classList.toggle('open');
+  sidebar.classList.remove('closed');
+};
+
+sidebarClose.onclick = () => {
+  sidebar.classList.remove('open');
+  sidebar.classList.add('closed');
+};
+
+
+
+    // Modal functions
+    modalClose.onclick = () => modalOverlay.classList.remove('active');
+    modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) modalOverlay.classList.remove('active'); });
+
+    function openModal(product) {
+      modalTitle.textContent = product.name;
+      modalDescription.textContent = product.description;
+      modalPrice.textContent = `₹${product.price}`; 
+      modalImage.src = product.image_url;
+      modalOverlay.classList.add('active');
+    
+    }
+
+
+
+    function appendMessage(sender, text, time, products=[]) {
+      const wrapper = document.createElement('div');
+      wrapper.classList.toggle('self-end', sender === username);
+      wrapper.classList.toggle('self-start', sender !== username);
+      wrapper.classList.add('chat-message-wrapper', 'animate-fadeInUp');
+
+      const bubble = document.createElement('div');
+      bubble.className = sender === username ? 'bubble-right' : 'bubble-left';
+
+       bubble.innerHTML = `<p>${text}</p>`;  
+
+      if (products.length) {
+        const grid = document.createElement('div');
+        grid.className = 'product-grid';
+        products.forEach(p => {
+          const img = document.createElement('img');
+          img.src = p.image_url; img.alt = p.name;
+          img.addEventListener('click', () => openModal(p));
+          grid.appendChild(img);
+        });
+        bubble.appendChild(grid);
+      }
+
+      const timestamp = document.createElement('small');
+      timestamp.className = 'text-gray-400 text-xs';
+     const options = { hour: 'numeric', minute: 'numeric', hour12: true };
+timestamp.textContent = `${sender === username ? "You" : sender} • ${new Date(time).toLocaleTimeString([], options)}`; // ✅
+
+
+
+      wrapper.append(bubble, timestamp);
+      chatWindow.appendChild(wrapper);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+      renderChatHistory(); // update sidebar in real-time
+    }
+
+    async function sendMessage(msg) {
+      appendMessage(username, msg, new Date().toISOString());
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ message: msg, username })
+      });
+      const data = await res.json();
+      appendMessage('bot', data.reply, new Date().toISOString(), data.products || []);
+    }
+
+    chatForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const msg = chatInput.value.trim();
+      if (!msg) return;
+      chatInput.value = '';
+      sendMessage(msg);
+    });
+
+    // Sidebar/chat history
+    let allMessages = [];
+
+    async function fetchHistory() {
+      const res = await fetch(`/api/history?username=${username}`);
+
+      const data = await res.json();
+      allMessages = data.history;
+      renderChatHistory();
+    }
+
+    function renderChatHistory() {
+      chatHistoryDiv.innerHTML = '';
+      const filter = searchInput.value.toLowerCase();
+      allMessages.forEach(h => {
+        if (!h.message.toLowerCase().includes(filter)) return;
+        const btn = document.createElement('button');
+        btn.className = 'text-left px-3 py-2 hover:bg-indigo-700';
+        btn.textContent = `${h.sender}: ${h.message}`; 
+
+        btn.addEventListener('click', () => appendMessage(h.sender, h.message, h.timestamp));
+        chatHistoryDiv.append(btn);
+      });
+    }
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+  await fetch('/api/logout', { method: 'POST' }); // if you handle sessions
+  window.location.href = '/login'; // redirect to login
+});
+
+
+    searchInput.addEventListener('input', renderChatHistory);
+    newChatBtn.onclick = () => { chatWindow.innerHTML = ''; allMessages = []; };
+
+    // Initialize
+    fetchHistory();
+  </script>
+</body>
+</html>
